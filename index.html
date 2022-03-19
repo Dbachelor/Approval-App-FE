@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body onload="fetchData('/site/index?tbl=departments&flag=fetch', '#department_id1', 2, '#department_id2')">
+  <div>
+    <button onclick="fetchData('/site/index?tbl=users', '#users')" class="btn btn-primary" data-togglge="modall" data-target="#myModall">show users</button>
+    <button onclick="fetchData('/site/index?tbl=approvers', '#approvers')" class="btn btn-info">show approvers</button>
+  </div>
+
+<div class="container">
+
+
+
+<button class="tablink btn" onclick="openPage('Home', this, 'green')">Create Department</button>
+<button class="tablink btn" onclick="openPage('News', this, 'green')" id="defaultOpen">Create Users</button>
+<button class="tablink btn" onclick="openPage('Contact', this, 'green')">Create Approvers</button>
+<button class="tablink btn" onclick="openPage('About', this, 'orange')" style="display: none;">About</button>
+
+
+
+  <div id="Home" class="tabcontent">
+    <br>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="pwd">Password:</label>
+      <div class="col-sm-10">
+        <input type="name" class="form-control" id="dep" placeholder="Enter Department name">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-default" onclick="findDuplicate('site/index?tbl=departments&flag=check', 'dep', 'departments')">Submit</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="News" class="tabcontent">
+    <br>
+    <form method="POST"  id="form1">
+      
+    
+    <div class="form-group">
+     
+      <div class="col-sm-10">
+        <input type="text" required class="form-control" id="name" name="name" placeholder="John Doe">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="email">Email</label>
+      <div class="col-sm-10">
+        <input type="email" required class="form-control" id="email" name="email"  placeholder="Enter email">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="pwd"></label>
+      <div class="col-sm-10">
+        <select name="department_id"  id="department_id1"  class="form-control" required>
+          <option>select department</option>
+
+        </select>
+      </div>
+    </div>
+    <input type="hidden" value="users" name="tbl" />
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-default" onclick="">Submit</button>
+      </div>
+    </div>
+  
+</form>
+</div> 
+  
+    
+      
+     
+   
+  
+  
+  <div id="Contact" class="tabcontent">
+   <br>
+    
+   <form method="POST"  id="form2">
+      
+    
+    <div class="form-group">
+     
+      <div class="col-sm-10">
+        <input type="text" required class="form-control" id="name2" name="name" placeholder="John Doe">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="email">Email</label>
+      <div class="col-sm-10">
+        <input type="email" required class="form-control" id="email2" name="email"  placeholder="Enter email">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="pwd"></label>
+      <div class="col-sm-10">
+        <select name="department_id"  id="department_id2"  class="form-control" required>
+          <option>select department</option>
+
+        </select>
+      </div>
+    </div>
+   
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-default" onclick="">Submit</button>
+      </div>
+    </div>
+  </div>
+</form>
+   
+</div>
+  </div>
+  
+  
+
+<script>
+  var API_PATH =  "http://localhost:8080/index.php";
+  function fetchData(resource, tableBodyId,  type=1, tableBodyId2=null,){
+    $.get(`${API_PATH}${resource}`, function(data, status){
+    if (data.status == 200){
+      let str = '';
+      let count = 1;
+      for (let i =0; i < data.body.length; i++){
+        if (type==1){
+          str+= "<tr><td>" + count++  + "</td><td>" + data.body[i].name + 
+        "</td><td>" + data.body[i].email + "</td><td>" + data.body[i].department + 
+          "</td></tr>";
+        }else if (type==2){
+          str += `<option value=${data.body[i].id}>${data.body[i].name}</option>`
+        }
+       
+      }
+      $(tableBodyId).html(str);
+      if (tableBodyId2 != null) {
+        $(tableBodyId2).html(str);
+      }
+    
+      
+    }
+  });
+  }
+
+ function findDuplicate(resource, field, table){
+   
+  let fieldValue = {data:$('#'+field).val()}
+  
+  $.get(`${API_PATH}/${resource}&name=${$('#'+field).val()}`, function(data, status){
+    console.log(data)
+    console.log($('#'+field).val(), `${API_PATH}/${resource}&name=${fieldValue.data}`)
+    if(data.status){
+      if(data.isDpulicate == 0){
+        console.log('saving data')
+        resource = '/site/create'
+        saveData(resource, table, $('#'+field).val());
+        
+      }else{
+        swal('department already exists');
+      }
+    }
+  })
+ }
+
+ function saveData(e, resource, tbl, fieldValue){
+    e.preventDefault();
+    let value = {tbl:tbl, name:fieldValue};
+    console.log(fieldValue)
+    //value = value.concat(value2);
+    console.log(value)
+    $.ajax({
+    type: "POST",
+    beforeSend: function(request) {
+      request.setRequestHeader("Content-Type", "application/json");
+    },
+    url: `${API_PATH}${resource}`,
+    data: JSON.stringify(value),
+    processData: false,
+    success: function(res) {
+    swal("completed","data created", "success");
+    setTimeout(()=>{location.reload()},2000 )
+    },
+    
+
+
+  });
+ }
+
+ document.querySelector('#form1').onsubmit = function(e){
+   e.preventDefault();
+     let form = {name:$('#name').val(), email:$('#email').val(), tbl:'users',
+      department_id:$('#department_id1').val(), }
+     let value = form;
+     let resource = '/site/create'
+  $.ajax({
+    type: "POST",
+    beforeSend: function(request) {
+      request.setRequestHeader("Content-Type", "application/json");
+    },
+    url: `${API_PATH}${resource}`,
+    data: JSON.stringify(value),
+    processData: false,
+    success: function(res) {
+      if (res == 1) 
+      {
+        swal("completed","data created", "success");
+        setTimeout(()=>{location.reload()},2000 )
+      }else{
+        swal("completed with errors","could not create data", "error");
+        setTimeout(()=>{location.reload()},2000 )
+      }
+    },
+ })
+}
+
+document.querySelector('#form2').onsubmit = function(e){
+   e.preventDefault();
+     let form = {name:$('#name2').val(), email:$('#email2').val(), tbl:'approvers',
+      department_id:$('#department_id2').val(), }
+     let value = form;
+     let resource = '/site/create'
+  $.ajax({
+    type: "POST",
+    beforeSend: function(request) {
+      request.setRequestHeader("Content-Type", "application/json");
+    },
+    url: `${API_PATH}${resource}`,
+    data: JSON.stringify(value),
+    processData: false,
+    success: function(res) {
+      if (res == 1) 
+      {
+        swal("completed","data created", "success");
+        setTimeout(()=>{location.reload()},2000 )
+      }else{
+        swal("completed with errors","could not create data", "error");
+        setTimeout(()=>{location.reload()},2000 )
+      }
+    },
+ })
+}
+
+// $("#form1").validate({
+//             rules: {
+//                 name: "required",
+                
+//             },
+//             messages: {
+//                 name: "Please enter a subject",
+                                  
+//             },
+//             submitHandler: function(form){
+//     $(form).ajaxSubmit({
+//             url: '/site/create',
+//             type: 'post',
+//             dataType: 'html',
+//             data : $( "#form1" ).serialize(),
+//             success : function(data) {
+//                 alert(data);
+//             },
+//             error : function(err) {
+//               alert(err)
+//             }
+//      });
+//     return false
+// }
+//         });
+
+</script>
+
+<script src="assets/js/index.js"></script>
+<div class="row" style="width:90%; margin-left:5%; margin-top:30px">
+  <div class="col-lg-6">
+ 
+    <table class="table table-striped table-bodered">
+      <caption>users</caption>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Department</th>
+        </tr>
+      </thead>
+      <tbody id="users">
+    
+      </tbody>
+      </table>
+
+  </div>
+  <div class="col-lg-6">
+ 
+    <table class="table table-striped table-bodered">
+      <caption>approvers</caption>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Department</th>
+        </tr>
+      </thead>
+      <tbody id="approvers">
+    
+      </tbody>
+      </table>
+
+  </div>
+
+</div>
+
+</body>
+</html> 
