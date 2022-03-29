@@ -177,8 +177,8 @@
   })
  }
 
- function saveData(e, resource, tbl, fieldValue){
-    e.preventDefault();
+ function saveData( resource, tbl, fieldValue){
+    //e.preventDefault();
     let value = {tbl:tbl, name:fieldValue};
     console.log(fieldValue)
     //value = value.concat(value2);
@@ -192,8 +192,11 @@
     data: JSON.stringify(value),
     processData: false,
     success: function(res) {
-    swal("completed","data created", "success");
+      if(res){
+        swal("completed","data created", "success");
     setTimeout(()=>{location.reload()},2000 )
+      }
+   
     },
     
 
